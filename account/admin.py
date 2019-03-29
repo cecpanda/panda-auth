@@ -1,18 +1,60 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-# from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserCreationForm
 
-from .models import Department, Room, Team
+from .models import Department, Room, GroupExtra
 
 
 User = get_user_model()
 
 
-admin.site.register(Department)
-admin.site.register(Room)
-admin.site.register(Team)
+class RoomInline(admin.StackedInline):
+    model = Room
+    extra = 2
+    show_change_link = True
+    filter_horizontal = ('groups',)
+
+
+class DepartmentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'list_rooms')
+    search_fields = ('name', 'rooms__name')
+    fields = ('id', 'name')
+    inlines = (RoomInline,)
+    readonly_fields = ('id',)
+
+    def list_rooms(self, obj):
+        names = []
+        for room in obj.rooms.all():
+            names.append(room.name)
+        return names
+
+    list_rooms.short_description = "科室"
+
+
+admin.site.register(Department, DepartmentAdmin)
+
+
+class GroupInline(admin.TabularInline):
+    model = GroupExtra
+    extra = 2
+    show_change_link = True
+
+
+class RoomAdmin(admin.ModelAdmin):
+    list_display = ('name', 'department')
+    search_fields = ('name', 'department__name')
+    fields = ('id', 'department', 'name', 'groups')
+    readonly_fields = ('id',)
+    # inlines = (GroupInline,)
+    filter_horizontal = ('groups',)
+
+
+admin.site.register(Room, RoomAdmin)
+
+
+admin.site.register(GroupExtra)
 
 
 class MyUserAdmin(UserAdmin):
@@ -27,7 +69,7 @@ class MyUserAdmin(UserAdmin):
         ('基本信息', {'fields': ('id', 'username', 'password', 'realname', 'email')}),
         ('详细信息', {'classes': ('collapse',), 'fields': ('avatar', 'mobile', 'gender', 'date_joined', 'is_staff', 'is_superuser', 'is_active')}),
         ('部门信息', {'classes': ('collapse',), 'fields': ('list_department', 'room',)}),
-        ('权限信息', {'classes': ('collapse',), 'fields': ('groups', 'user_permissions',)}),
+        ('权限信息', {'classes': ('collapse',), 'fields': ('groups', 'user_permissions')}),
     )
     readonly_fields = ('id', 'list_department')
     filter_horizontal = ('groups', 'user_permissions',)
@@ -39,7 +81,16 @@ class MyUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'password1', 'password2'),
+            'fields': ('username',
+                       'password1',
+                       'password2',
+                       'realname',
+                       'email',
+                       'mobile',
+                       'gender',
+                       'room',
+                       'groups',
+                       'user_permissions'),
         }),
     )
 

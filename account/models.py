@@ -16,8 +16,9 @@ class Department(models.Model):
 
 
 class Room(models.Model):
-    name = models.CharField('科室', max_length=10)
+    name       = models.CharField('科室', max_length=10)
     department = models.ForeignKey(Department, on_delete=models.PROTECT, related_name='rooms', verbose_name='部门')
+    groups     = models.ManyToManyField(Group, related_name='rooms', verbose_name='团队/组')
 
     class Meta:
         ordering = ('id',)
@@ -25,8 +26,19 @@ class Room(models.Model):
         verbose_name_plural = verbose_name
 
     def __str__(self):
-        return f'{self.department.name}/{self.name}'
+        return f'{self.department.name}-{self.name}'
 
+
+class GroupExtra(models.Model):
+    group = models.OneToOneField(Group, on_delete=models.PROTECT, related_name='extra', verbose_name='团队/组')
+    desc  = models.TextField(verbose_name='描述', blank=True, null=True)
+
+    class Meta:
+        verbose_name = '团队'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return f'{self.group}'
 
 # 修改了原来的 Group，makemigrations 时带来不想要的结果
 # Group.add_to_class('room', models.ForeignKey(Room, on_delete=models.PROTECT, related_name='groups', verbose_name='科室'))
@@ -41,21 +53,28 @@ class Room(models.Model):
 
 # Department > Room > Team = Group > User
 
-class Team(models.Model):
-    group = models.OneToOneField(Group, on_delete=models.PROTECT, related_name='team',  verbose_name='团队')
-    room  = models.ForeignKey(Room,     on_delete=models.PROTECT, related_name='teams', verbose_name='科室')
-    desc = models.TextField(max_length=30, verbose_name='团队描述')
+# class Team(models.Model):
+#     group = models.OneToOneField(Group, on_delete=models.PROTECT, related_name='team',  verbose_name='组')
+#     room  = models.ForeignKey(Room,     on_delete=models.PROTECT, related_name='teams', verbose_name='科室')
+#     desc = models.TextField(verbose_name='团队描述', blank=True, null=True)
+#
+#     class Meta:
+#         ordering = ('id',)
+#         verbose_name = '团队'
+#         verbose_name_plural = verbose_name
+#
+#     def __str__(self):
+#         return f"{self.room.department.name}-{self.room.name}-{self.group.name}"
 
-    class Meta:
-        ordering = ('id',)
-        verbose_name = '团队'
-        verbose_name_plural = verbose_name
 
-    def __str__(self):
-        return f"{self.room.department.name}/{self.room.name}/{self.group.name}"
 
 
 class User(AbstractUser):
+    '''
+    Department > Room >< Group > User
+                  V      GroupExtra
+                 User
+    '''
     # username
     realname = models.CharField('真名',  max_length=10,  blank=True, null=True, help_text='长度不大于10')
     email    = models.EmailField('邮箱', max_length=30,  blank=True, null=True)
