@@ -14,15 +14,23 @@ class RoomInline(admin.StackedInline):
     model = Room
     extra = 2
     show_change_link = True
-    filter_horizontal = ('groups',)
+    fieldsets = (
+        (None,      {'fields': ('id', 'name')}),
+        ('科室权限', {'classes': ('collapse',), 'fields': ('permissions',)}),
+    )
+    filter_horizontal = ('permissions', )
 
 
 class DepartmentAdmin(admin.ModelAdmin):
     list_display = ('name', 'list_rooms')
     search_fields = ('name', 'rooms__name')
-    fields = ('id', 'name')
+    fieldsets = (
+        (None,      {'fields': ('id', 'name')}),
+        ('权限信息', {'classes': ('collapse',), 'fields': ('permissions',)})
+    )
     inlines = (RoomInline,)
     readonly_fields = ('id',)
+    filter_horizontal = ('permissions',)
 
     def list_rooms(self, obj):
         names = []
@@ -45,16 +53,41 @@ class GroupInline(admin.TabularInline):
 class RoomAdmin(admin.ModelAdmin):
     list_display = ('name', 'department')
     search_fields = ('name', 'department__name')
-    fields = ('id', 'department', 'name', 'groups')
+    fieldsets = (
+        (None,      {'fields': ('id', 'department', 'name')}),
+        ('科室权限', {'classes': ('collapse',), 'fields': ('permissions',)}),
+        ('团队和组', {'classes': ('collapse',), 'fields': ('groups',)})
+    )
     readonly_fields = ('id',)
-    # inlines = (GroupInline,)
-    filter_horizontal = ('groups',)
+    filter_horizontal = ('permissions', 'groups')
 
 
 admin.site.register(Room, RoomAdmin)
 
 
-admin.site.register(GroupExtra)
+class GroupAdmin(admin.ModelAdmin):
+    list_display = ('list_group', 'list_rooms')
+    fieldsets = (
+        (None, {'fields': ('group', 'desc')}),
+        # ('团队权限', {'classes': ('collapse',), 'fields': ('group.permissions',)}),
+    )
+
+    def list_group(self, obj):
+        return obj.group
+
+    list_group.short_description = '团队/组'
+
+    def list_rooms(self, obj):
+        names = []
+        for room in obj.group.rooms.all():
+            names.append(room.name)
+        return names
+
+    list_rooms.short_description = "科室"
+
+
+# admin.site.unregister(Group)
+admin.site.register(GroupExtra, GroupAdmin)
 
 
 class MyUserAdmin(UserAdmin):

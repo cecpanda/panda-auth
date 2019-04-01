@@ -141,6 +141,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # User
 AUTH_USER_MODEL = 'account.User'
 
+AUTHENTICATION_BACKENDS = ['account.backends.MyBackend']
+
 
 # DRF
 
