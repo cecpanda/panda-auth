@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.contenttypes.models import ContentType
 
 from .models import Department, Room, GroupExtra
 
@@ -138,3 +139,17 @@ class MyUserAdmin(UserAdmin):
 
 
 admin.site.register(User, MyUserAdmin)
+
+
+class PermissionAdmin(admin.ModelAdmin):
+    list_display = ('name', 'codename')
+
+
+admin.site.register(Permission, PermissionAdmin)
+
+
+class ContentTypeAdmin(admin.ModelAdmin):
+    list_display = ('app_label', 'model')
+
+
+admin.site.register(ContentType, ContentTypeAdmin)

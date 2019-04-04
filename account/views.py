@@ -1,4 +1,6 @@
 from django.contrib.auth import get_user_model
+from rest_framework.response import Response
+from rest_framework.generics import GenericAPIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.permissions import IsAuthenticated
@@ -6,7 +8,8 @@ from rest_framework.permissions import IsAuthenticated
 from .models import (Department, Room)
 from .serializers import (DepartmentSerializer,
                           RoomSerializer,
-                          UserSerializer)
+                          UserSerializer,
+                          PermissionSerializer)
 from .utils import UserPagination
 
 
@@ -35,3 +38,12 @@ class UserViewSet(ListModelMixin,
     serializer_class = UserSerializer
     pagination_class = UserPagination
     permission_classes = [IsAuthenticated,]
+
+
+class PermissionView(GenericAPIView):
+    serializer_class = PermissionSerializer
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        serializer = self.get_serializer(user)
+        return Response(serializer.data)
