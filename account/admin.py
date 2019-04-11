@@ -101,7 +101,7 @@ class MyUserAdmin(UserAdmin):
     # 如果想显示其他字段，需要加入 readonlu_fields
     fieldsets = (
         ('基本信息', {'fields': ('id', 'username', 'password', 'realname', 'email')}),
-        ('详细信息', {'classes': ('collapse',), 'fields': ('avatar', 'mobile', 'gender', 'date_joined', 'is_staff', 'is_superuser', 'is_active')}),
+        ('详细信息', {'classes': ('collapse',), 'fields': ('avatar', 'mobile', 'gender', 'job', 'brief', 'date_joined', 'is_staff', 'is_superuser', 'is_active')}),
         ('部门信息', {'classes': ('collapse',), 'fields': ('list_department', 'room',)}),
         ('权限信息', {'classes': ('collapse',), 'fields': ('groups', 'user_permissions')}),
     )

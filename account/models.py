@@ -51,6 +51,8 @@ class User(AbstractUser):
     mobile   = models.CharField("手机",  max_length=20,  blank=True, null=True)
     avatar   = models.ImageField('头像', blank=True, null=True, upload_to='avatars/%Y/%m', default="avatars/default.jpeg")
     gender   = models.CharField("性别",  max_length=1, choices=(("M", "男"), ("F", "女")), default="M")
+    job      = models.CharField('职位',  max_length=10,  blank=True, null=True)
+    brief    = models.TextField('简介',  blank=True, null=True)
 
     # 用户只能加入一个科室，权限只看 Group，和 Department/Room/Team 无关
     room     = models.ForeignKey(Room, on_delete=models.PROTECT, blank=True, null=True, related_name='users', verbose_name='科室')
