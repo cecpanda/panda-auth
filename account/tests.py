@@ -99,3 +99,21 @@ class UserViewSetAPITestCase(APITestCase):
         request.user = user
         response = UserViewSet.as_view({'get': 'list'})(request)
         self.assertEqual(response.data.get('count'), 50)
+
+
+class UserInfoTestCase(APITestCase):
+
+    def setUp(self):
+        self.request = RequestsClient()
+
+        d = Department.objects.create(name="信息工程部")
+        r = Room.objects.create(name='CIM', department=d)
+        UserModel.objects.create(username="durant", password="123", room=r)
+
+    def test_get_info(self):
+        user = UserModel.objects.get(username='durant')
+
+        self.client.credentials(HTTP_AUTHORIZATION='JWT 123')
+        res = self.client.get('/account/info/')
+        pprint(res)
+        pprint(res.data)

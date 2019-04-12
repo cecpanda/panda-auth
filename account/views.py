@@ -40,18 +40,20 @@ class UserViewSet(ListModelMixin,
     queryset = UserModel.objects.all()
     serializer_class = UserSerializer
     pagination_class = UserPagination
-    # permission_classes = [IsAuthenticated,]
+    permission_classes = [IsAuthenticated,]
 
-    def get_permissions(self):
-        if self.action == 'get_info':
-            return []
-        return [IsAuthenticated()]
+    # def get_permissions(self):
+    #     if self.action == 'get_info':
+    #         return []
+    #     return [IsAuthenticated()]
 
-    @action(methods=['get'], detail=False, url_path='info', url_name='info')
-    def get_info(self, request):
+class UserInfoViewSet(GenericAPIView):
+    serializer_class = UserSerializer
+
+    def get(self, request, *args, **kwargs):
         user = request.user
         serializer = self.get_serializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data)
 
 
 class PermissionView(GenericAPIView):
