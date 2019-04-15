@@ -40,10 +40,38 @@ class RoomSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    department = serializers.SerializerMethodField()
+    room = serializers.SerializerMethodField()
+    groups = serializers.SerializerMethodField()
 
     class Meta:
         fields = ('id', 'username', 'realname', 'email', 'mobile', 'avatar',
-                  'gender')
+                  'gender', 'job', 'brief', 'department', 'room', 'groups')
+        model = UserModel
+
+    def get_department(self, obj):
+        try:
+            name = obj.room.department.name
+        except Exception:
+            name = None
+        return name
+
+    def get_room(self, obj):
+        try:
+            name = obj.room.name
+        except Exception:
+            name = None
+        return name
+
+    def get_groups(self, obj):
+        return [ group.name for group in obj.groups.all()]
+
+
+
+class UserInfoSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ('id', 'username', 'realname', 'avatar')
         model = UserModel
 
 

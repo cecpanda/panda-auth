@@ -12,6 +12,7 @@ from .models import (Department, Room)
 from .serializers import (DepartmentSerializer,
                           RoomSerializer,
                           UserSerializer,
+                          UserInfoSerializer,
                           PermissionSerializer)
 from .utils import UserPagination
 
@@ -42,13 +43,9 @@ class UserViewSet(ListModelMixin,
     pagination_class = UserPagination
     permission_classes = [IsAuthenticated,]
 
-    # def get_permissions(self):
-    #     if self.action == 'get_info':
-    #         return []
-    #     return [IsAuthenticated()]
 
 class UserInfoViewSet(GenericAPIView):
-    serializer_class = UserSerializer
+    serializer_class = UserInfoSerializer
 
     def get(self, request, *args, **kwargs):
         user = request.user
