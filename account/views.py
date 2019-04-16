@@ -13,6 +13,8 @@ from .serializers import (DepartmentSerializer,
                           RoomSerializer,
                           UserSerializer,
                           ChangeAvatarSerializer,
+                          ChangeProfileSerializer,
+                          ChangePasswordSerializer,
                           UserInfoSerializer,
                           PermissionSerializer)
 from .utils import UserPagination
@@ -47,6 +49,10 @@ class UserViewSet(ListModelMixin,
     def get_serializer_class(self):
         if self.action == 'change_avatar':
             return ChangeAvatarSerializer
+        elif self.action == 'change_profile':
+            return ChangeProfileSerializer
+        elif self.action == 'change_password':
+            return ChangePasswordSerializer
         return UserSerializer
 
     @action(methods=['post'], detail=False, url_path='change-avatar', url_name='change_avatar')
@@ -56,6 +62,25 @@ class UserViewSet(ListModelMixin,
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response({'avatar': serializer.data.get('avatar')}, status=status.HTTP_200_OK)
+
+    @action(methods=['post'], detail=False, url_path='change-profile', url_name='change_profile')
+    def change_profile(self, request):
+        user = request.user
+        serializer = self.get_serializer(user, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['post'], detail=False, url_path='change-password', url_name='change_password')
+    def change_password(self, request):
+        user = request.user
+        serializer = self.get_serializer(user, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        if user.check_password(serializer.validated_data.get('old_password')):
+            user.set_password(serializer.validated_data.get('new_password'))
+            user.save()
+            return Response({'status': 'ok'}, status.HTTP_202_ACCEPTED)
+        return Response({'error': 'wrong password'}, status.HTTP_400_BAD_REQUEST)
 
 
 class UserInfoViewSet(GenericAPIView):

@@ -74,6 +74,18 @@ class ChangeAvatarSerializer(serializers.ModelSerializer):
         model = UserModel
 
 
+class ChangeProfileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ('realname', 'email', 'mobile', 'gender', 'job', 'brief')
+        model = UserModel
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(style={'input_type': 'password'})
+    new_password = serializers.CharField(style={'input_type': 'password'})
+
+
 class UserInfoSerializer(serializers.ModelSerializer):
 
     class Meta:
