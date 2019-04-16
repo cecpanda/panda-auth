@@ -67,6 +67,12 @@ class UserSerializer(serializers.ModelSerializer):
         return [ group.name for group in obj.groups.all()]
 
 
+class ChangeAvatarSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ('avatar',)
+        model = UserModel
+
 
 class UserInfoSerializer(serializers.ModelSerializer):
 

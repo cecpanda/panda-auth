@@ -12,6 +12,7 @@ from .models import (Department, Room)
 from .serializers import (DepartmentSerializer,
                           RoomSerializer,
                           UserSerializer,
+                          ChangeAvatarSerializer,
                           UserInfoSerializer,
                           PermissionSerializer)
 from .utils import UserPagination
@@ -39,9 +40,22 @@ class UserViewSet(ListModelMixin,
                   GenericViewSet):
     lookup_field = 'username'
     queryset = UserModel.objects.all()
-    serializer_class = UserSerializer
+    # serializer_class = UserSerializer
     pagination_class = UserPagination
     permission_classes = [IsAuthenticated,]
+
+    def get_serializer_class(self):
+        if self.action == 'change_avatar':
+            return ChangeAvatarSerializer
+        return UserSerializer
+
+    @action(methods=['post'], detail=False, url_path='change-avatar', url_name='change_avatar')
+    def change_avatar(self, request):
+        user = request.user
+        serializer = self.get_serializer(user, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'avatar': serializer.data.get('avatar')}, status=status.HTTP_200_OK)
 
 
 class UserInfoViewSet(GenericAPIView):
