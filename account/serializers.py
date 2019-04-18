@@ -87,17 +87,39 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 
 class UserInfoSerializer(serializers.ModelSerializer):
+    menu = serializers.SerializerMethodField()
 
     class Meta:
-        fields = ('id', 'username', 'realname', 'avatar')
+        fields = ('id', 'username', 'realname', 'avatar', 'menu')
         model = UserModel
 
+    def get_menu(self, obj):
+        '''
+        前端根据这个列表动态渲染导航
+        menu = [部门, 科室, 团队]
+        total_menu = [
+            'it',
+            'it-sys',
+            'if-sys-oncall',
+            'if-sys-tft',
+            'if-sys-lcd',
+            'if-sys-titan',
+            'it-eq'
+        ]
+        '''
+        menu = []
 
-# class PermSerializer(serializers.ModelSerializer):
-#
-#     class Meta:
-#         fields = ('name', 'codename')
-#         model = Permission
+        # 部门和科室的导航直接通过判断确定
+        # 剩下的导航根据权限
+        try:
+            menu.append(obj.room.department.code)
+            menu.append(obj.room.code)
+        except Exception:
+            pass
+
+        for permission in obj.user_permissions.all():
+            pass
+        return menu
 
 
 class PermissionSerializer(serializers.ModelSerializer):

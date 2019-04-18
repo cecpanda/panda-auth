@@ -4,7 +4,8 @@ from django.contrib.auth.models import AbstractUser, Group, Permission
 
 
 class Department(models.Model):
-    name = models.CharField('部门', unique=True, max_length=10)
+    name        = models.CharField('部门', unique=True, max_length=10)
+    code        = models.CharField('代码', unique=True, max_length=5)
     permissions = models.ManyToManyField(
         Permission,
         verbose_name=_('permissions'),
@@ -16,12 +17,18 @@ class Department(models.Model):
         verbose_name = "部门"
         verbose_name_plural = verbose_name
 
+    def save(self, *args, **kwargs):
+        self.code = self.code.upper()
+        super().save(*args, **kwargs)
+
+
     def __str__(self):
         return f'{self.name}'
 
 
 class Room(models.Model):
     name       = models.CharField('科室', unique=True, max_length=10)
+    code       = models.CharField('代码', unique=True, max_length=10)
     department = models.ForeignKey(Department, on_delete=models.PROTECT, related_name='rooms', verbose_name='部门')
     groups     = models.ManyToManyField(Group, related_name='rooms', blank=True, verbose_name='团队/组')
     permissions = models.ManyToManyField(
@@ -34,6 +41,10 @@ class Room(models.Model):
         ordering = ('id',)
         verbose_name = "科室"
         verbose_name_plural = verbose_name
+
+    def save(self, *args, **kwargs):
+        self.code = self.code.upper()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.department.name}-{self.name}'
@@ -66,13 +77,18 @@ class User(AbstractUser):
         return f'{self.username}'
 
 
-class GroupExtra(models.Model):
-    group = models.OneToOneField(Group, on_delete=models.PROTECT, related_name='extra', verbose_name='团队/组')
+class GroupInfo(models.Model):
+    group = models.OneToOneField(Group, on_delete=models.PROTECT, related_name='info', verbose_name='团队/组')
+    code  = models.CharField('代码', unique=True, max_length=15)
     desc  = models.TextField(verbose_name='描述', blank=True, null=True)
 
     class Meta:
         verbose_name = '团队'
         verbose_name_plural = verbose_name
+
+    def save(self, *args, **kwargs):
+        self.code = self.code.upper()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.group}'

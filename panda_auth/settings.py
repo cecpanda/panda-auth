@@ -170,7 +170,7 @@ REST_FRAMEWORK = {
 JWT_AUTH = {
     'JWT_SECRET_KEY': 'dh@8jt0ki-maw(tzx#pt-si$c9mdxt7$0$&)yu!0k$&e-',
     'JWT_ALLOW_REFRESH': True,
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=3),
     # 'JWT_RESPONSE_PAYLOAD_HANDLER': 'account.utils.jwt_response_payload_handler',
-    'JWT_LEEWAY': datetime.timedelta(hours=2)
+    # 'JWT_LEEWAY': datetime.timedelta(hours=2)
 }

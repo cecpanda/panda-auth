@@ -5,7 +5,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.contenttypes.models import ContentType
 
-from .models import Department, Room, GroupExtra
+from .models import Department, Room, GroupInfo
 
 
 User = get_user_model()
@@ -16,17 +16,17 @@ class RoomInline(admin.StackedInline):
     extra = 2
     show_change_link = True
     fieldsets = (
-        (None,      {'fields': ('id', 'name')}),
+        (None,      {'fields': ('id', 'code', 'name')}),
         ('科室权限', {'classes': ('collapse',), 'fields': ('permissions',)}),
     )
     filter_horizontal = ('permissions', )
 
 
 class DepartmentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'list_rooms')
+    list_display = ('name', 'code', 'list_rooms')
     search_fields = ('name', 'rooms__name')
     fieldsets = (
-        (None,      {'fields': ('id', 'name')}),
+        (None,      {'fields': ('id', 'name', 'code')}),
         ('权限信息', {'classes': ('collapse',), 'fields': ('permissions',)})
     )
     inlines = (RoomInline,)
@@ -46,16 +46,16 @@ admin.site.register(Department, DepartmentAdmin)
 
 
 class GroupInline(admin.TabularInline):
-    model = GroupExtra
+    model = GroupInfo
     extra = 2
     show_change_link = True
 
 
 class RoomAdmin(admin.ModelAdmin):
-    list_display = ('name', 'department')
+    list_display = ('name', 'code', 'department')
     search_fields = ('name', 'department__name')
     fieldsets = (
-        (None,      {'fields': ('id', 'department', 'name')}),
+        (None,      {'fields': ('id', 'department', 'name', 'code')}),
         ('科室权限', {'classes': ('collapse',), 'fields': ('permissions',)}),
         ('团队和组', {'classes': ('collapse',), 'fields': ('groups',)})
     )
@@ -67,9 +67,9 @@ admin.site.register(Room, RoomAdmin)
 
 
 class GroupAdmin(admin.ModelAdmin):
-    list_display = ('list_group', 'list_rooms')
+    list_display = ('list_group', 'code', 'list_rooms')
     fieldsets = (
-        (None, {'fields': ('group', 'desc')}),
+        (None, {'fields': ('group', 'code', 'desc')}),
         # ('团队权限', {'classes': ('collapse',), 'fields': ('group.permissions',)}),
     )
 
@@ -88,7 +88,7 @@ class GroupAdmin(admin.ModelAdmin):
 
 
 # admin.site.unregister(Group)
-admin.site.register(GroupExtra, GroupAdmin)
+admin.site.register(GroupInfo, GroupAdmin)
 
 
 class MyUserAdmin(UserAdmin):
