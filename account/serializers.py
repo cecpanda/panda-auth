@@ -107,7 +107,7 @@ class UserInfoSerializer(serializers.ModelSerializer):
             'it-eq'
         ]
         '''
-        menu = []
+        menu = ['tft', 'lcd']
 
         # 部门和科室的导航直接通过判断确定
         # 剩下的导航根据权限
