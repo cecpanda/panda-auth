@@ -18,7 +18,7 @@ class Department(models.Model):
         verbose_name_plural = verbose_name
 
     def save(self, *args, **kwargs):
-        self.code = self.code.upper()
+        self.code = self.code.lower()
         super().save(*args, **kwargs)
 
 
@@ -43,7 +43,7 @@ class Room(models.Model):
         verbose_name_plural = verbose_name
 
     def save(self, *args, **kwargs):
-        self.code = self.code.upper()
+        self.code = self.code.lower()
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -87,7 +87,7 @@ class GroupInfo(models.Model):
         verbose_name_plural = verbose_name
 
     def save(self, *args, **kwargs):
-        self.code = self.code.upper()
+        self.code = self.code.lower()
         super().save(*args, **kwargs)
 
     def __str__(self):

@@ -96,29 +96,40 @@ class UserInfoSerializer(serializers.ModelSerializer):
     def get_menu(self, obj):
         '''
         前端根据这个列表动态渲染导航
-        menu = [部门, 科室, 团队]
-        total_menu = [
+        menu = [
             'it',
+            'member',
             'it-sys',
-            'if-sys-oncall',
-            'if-sys-tft',
-            'if-sys-lcd',
-            'if-sys-titan',
-            'it-eq'
+            'it-sys-tft',
+            'it-sys-lcd',
+            'it-eq',
+            'tft',
+            'tft-cvd',
+            'tft-pho'
         ]
         '''
-        menu = ['tft', 'lcd']
-
+        menu = []
         # 部门和科室的导航直接通过判断确定
         # 剩下的导航根据权限
+        if obj.has_perm('menu.is_manager'):
+            menu.append('manager')
+        elif obj.has_perm('menu.is_leader'):
+            menu.append('leader')
+        else:
+            menu.append('member')
+
         try:
             menu.append(obj.room.department.code)
             menu.append(obj.room.code)
         except Exception:
             pass
 
-        for permission in obj.user_permissions.all():
-            pass
+        # 三级导航通过权限的 view 判定
+        # 找到所有服务，看是否有 view 权限
+        for service in ContentType.objects.all():
+            p = f'{service.app_label}.view_{service.name}'
+            if obj.has_perm(p):
+                menu.append(service.name)
         return menu
 
 
