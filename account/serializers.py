@@ -133,7 +133,21 @@ class UserInfoSerializer(serializers.ModelSerializer):
         return menu
 
 
-class PermissionSerializer(serializers.ModelSerializer):
+class PermissionSerializer(serializers.Serializer):
+    # user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    action = serializers.ChoiceField(label='动作', choices=(('view', 'add', 'change', 'delete')))
+    app = serializers.CharField(label='应用', required=True)
+    service = serializers.CharField(label='服务', required=True)
+
+    def validate(self, attrs):
+        app = attrs.get('app')
+        service = attrs.get('service')
+        if not ContentType.objects.filter(app_label=app, model=service).exists():
+            raise serializers.ValidationError(f'不存在您指定的app: {app}，或不存在service: {service}.')
+        return attrs
+
+
+class PermissionsSerializer(serializers.ModelSerializer):
     department = serializers.SerializerMethodField()
     room = serializers.SerializerMethodField()
     permissions = serializers.SerializerMethodField()

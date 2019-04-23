@@ -16,7 +16,8 @@ from .serializers import (DepartmentSerializer,
                           ChangeProfileSerializer,
                           ChangePasswordSerializer,
                           UserInfoSerializer,
-                          PermissionSerializer)
+                          PermissionSerializer,
+                          PermissionsSerializer)
 from .utils import UserPagination
 
 
@@ -53,6 +54,8 @@ class UserViewSet(ListModelMixin,
             return ChangeProfileSerializer
         elif self.action == 'change_password':
             return ChangePasswordSerializer
+        elif self.action == 'get_permission':
+            return PermissionSerializer
         return UserSerializer
 
     @action(methods=['post'], detail=False, url_path='change-avatar', url_name='change_avatar')
@@ -82,8 +85,21 @@ class UserViewSet(ListModelMixin,
             return Response({'status': 'ok'}, status.HTTP_202_ACCEPTED)
         return Response({'error': 'wrong password'}, status.HTTP_400_BAD_REQUEST)
 
+    @action(methods=['post'], detail=False, url_path='get-permission', url_name='get_permission')
+    def get_permission(self, request):
+        user = request.user
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        action_name = serializer.data.get('action')
+        app = serializer.data.get('app')
+        service = serializer.data.get('service')
+        if user.has_perm(f'{app}.{action_name}_{service}'):
+            return Response({'allowed': True}, status=status.HTTP_200_OK)
+        else:
+            return Response({'allowed': False}, status=status.HTTP_200_OK)
 
-class UserInfoViewSet(GenericAPIView):
+
+class UserInfoView(GenericAPIView):
     serializer_class = UserInfoSerializer
 
     def get(self, request, *args, **kwargs):
@@ -92,8 +108,8 @@ class UserInfoViewSet(GenericAPIView):
         return Response(serializer.data)
 
 
-class PermissionView(GenericAPIView):
-    serializer_class = PermissionSerializer
+class PermissionsView(GenericAPIView):
+    serializer_class = PermissionsSerializer
 
     def get(self, request, *args, **kwargs):
         user = request.user
